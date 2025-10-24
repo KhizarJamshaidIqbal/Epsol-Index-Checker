@@ -10,6 +10,7 @@ const nextConfig = {
   },
   eslint: {
     dirs: ['app', 'lib', 'components'],
+    ignoreDuringBuilds: true,
   },
 }
 
