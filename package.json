@@ -37,9 +37,13 @@
     "lucide-react": "^0.323.0",
     "next": "14.1.0",
     "next-auth": "^4.24.5",
+<<<<<<< HEAD
     "next-themes": "^0.4.6",
     "nodemailer": "^6.10.1",
     "papaparse": "^5.5.3",
+=======
+    "node-fetch": "^2.7.0",
+>>>>>>> 223c64c68393d4d441703971aa2d1cad77871575
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^3.3.0",
@@ -61,6 +65,7 @@
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "eslint-config-prettier": "^9.1.0",
+    "pg": "^8.16.3",
     "postcss": "^8.4.33",
     "prettier": "^3.2.5",
     "prisma": "^5.9.1",
