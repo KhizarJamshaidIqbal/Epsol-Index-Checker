@@ -52,6 +52,7 @@
   "devDependencies": {
     "@playwright/test": "^1.41.2",
     "@types/node": "^20.11.16",
+    "@types/nodemailer": "^7.0.3",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
