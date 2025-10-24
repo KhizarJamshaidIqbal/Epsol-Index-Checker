@@ -4,6 +4,7 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000'],
     },
+    missingSuspenseWithCSRBailout: false,
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -12,6 +13,7 @@ const nextConfig = {
     dirs: ['app', 'lib', 'components'],
     ignoreDuringBuilds: true,
   },
+  output: 'standalone',
 }
 
 module.exports = nextConfig
