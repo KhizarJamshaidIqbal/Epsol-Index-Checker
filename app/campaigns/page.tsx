@@ -3,16 +3,9 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { StatusBadge } from '@/components/status-badge'
+import { useToast } from '@/components/ui/use-toast'
 import { Loader2, Plus } from 'lucide-react'
+import { CampaignsTable } from '@/components/campaigns-list/campaigns-table'
 
 interface Campaign {
   id: string
@@ -30,6 +23,7 @@ interface Campaign {
 }
 
 export default function CampaignsPage() {
+  const { toast } = useToast()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,8 +64,16 @@ export default function CampaignsPage() {
       }
 
       setCampaigns((prev) => prev.filter((c) => c.id !== id))
+      toast({
+        title: 'Campaign Deleted',
+        description: 'Campaign has been successfully deleted',
+      })
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete campaign')
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Failed to delete campaign',
+      })
     }
   }
 
@@ -112,61 +114,7 @@ export default function CampaignsPage() {
           </Link>
         </div>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Campaign Name</TableHead>
-                <TableHead>URLs</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {campaigns.map((campaign) => (
-                <TableRow key={campaign.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/campaigns/${campaign.id}`} className="hover:underline">
-                      {campaign.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{campaign.totalUrls}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-32 bg-secondary rounded-full h-2">
-                        <div
-                          className="bg-primary h-2 rounded-full"
-                          style={{ width: `${campaign.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-muted-foreground">{campaign.progress}%</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={campaign.status} />
-                  </TableCell>
-                  <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Link href={`/campaigns/${campaign.id}`}>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => deleteCampaign(campaign.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <CampaignsTable campaigns={campaigns} onDelete={deleteCampaign} />
       )}
     </div>
   )

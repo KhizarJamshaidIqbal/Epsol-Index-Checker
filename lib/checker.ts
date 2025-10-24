@@ -27,13 +27,24 @@ export async function checkIndexExact(
   }
 
   try {
-    // Build the query with exact URL match
-    const q = `"${url}"`
+    // Parse URL to extract domain and path for site: search
+    let searchQuery: string
+    try {
+      const urlObj = new URL(url)
+      // Use site: operator for more accurate index checking
+      // Remove protocol for cleaner search
+      const siteQuery = `${urlObj.hostname}${urlObj.pathname}${urlObj.search}`
+      searchQuery = `site:${siteQuery}`
+    } catch {
+      // If URL parsing fails, fall back to quoted search
+      searchQuery = `"${url}"`
+    }
+
     const endpoint = new URL('https://www.googleapis.com/customsearch/v1')
     endpoint.searchParams.set('key', key)
     endpoint.searchParams.set('cx', cx)
-    endpoint.searchParams.set('q', q)
-    endpoint.searchParams.set('num', '3')
+    endpoint.searchParams.set('q', searchQuery)
+    endpoint.searchParams.set('num', '10') // Get more results for better matching
 
     // Make the API request with timeout
     const controller = new AbortController()
@@ -72,11 +83,37 @@ export async function checkIndexExact(
       const data = await res.json()
       const items = data.items ?? []
 
-      // Look for exact match (ignoring single trailing slash)
-      const normalizedUrl = url.replace(/\/$/, '')
+      if (!items || items.length === 0) {
+        return {
+          status: 'NOT_INDEXED',
+          title: '',
+          snippet: '',
+          reason: 'No results found in Google index',
+        }
+      }
+
+      // Normalize URL for comparison (remove protocol, www, trailing slash)
+      const normalizeForComparison = (urlStr: string): string => {
+        try {
+          const u = new URL(urlStr)
+          let normalized = u.hostname.replace(/^www\./, '') + u.pathname + u.search
+          // Remove trailing slash unless it's the root
+          if (normalized.endsWith('/') && normalized.length > 1) {
+            normalized = normalized.slice(0, -1)
+          }
+          return normalized.toLowerCase()
+        } catch {
+          return urlStr.replace(/\/$/, '').toLowerCase()
+        }
+      }
+
+      const targetNormalized = normalizeForComparison(url)
+
+      // Look for matching URL (flexible matching)
       const match = items.find((item: any) => {
-        const itemLink = item?.link?.replace(/\/$/, '')
-        return itemLink === normalizedUrl
+        if (!item?.link) return false
+        const itemNormalized = normalizeForComparison(item.link)
+        return itemNormalized === targetNormalized
       })
 
       if (match) {
@@ -88,11 +125,14 @@ export async function checkIndexExact(
         }
       }
 
+      // If we got results but no exact match, still might be indexed
+      // (e.g., Google returned a parent page or slight variation)
+      const firstResult = items[0]
       return {
         status: 'NOT_INDEXED',
         title: '',
         snippet: '',
-        reason: 'No exact match found in Google results',
+        reason: `URL not found. Google returned: ${firstResult?.link || 'no results'}`,
       }
     } catch (fetchError) {
       clearTimeout(timeoutId)
