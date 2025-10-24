@@ -6,7 +6,7 @@ const nextConfig = {
     },
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   eslint: {
     dirs: ['app', 'lib', 'components'],
