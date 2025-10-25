@@ -39,10 +39,14 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Email configuration is incomplete. Please contact administrator.')
           }
 
-          console.log(`📧 Sending magic link to ${email}...`)
+          console.log(`📧 Attempting to send magic link to ${email}...`)
+          console.log(`📧 SMTP Config: ${process.env.EMAIL_SERVER_HOST}:${process.env.EMAIL_SERVER_PORT}`)
+          console.log(`📧 SMTP User: ${process.env.EMAIL_SERVER_USER}`)
 
           // Production: use nodemailer with SSL/TLS
           const nodemailer = await import('nodemailer')
+          
+          console.log('📧 Creating SMTP transport...')
           const transport = nodemailer.createTransport({
             host: process.env.EMAIL_SERVER_HOST,
             port: Number(process.env.EMAIL_SERVER_PORT),
@@ -51,7 +55,22 @@ export const authOptions: NextAuthOptions = {
               user: process.env.EMAIL_SERVER_USER,
               pass: process.env.EMAIL_SERVER_PASSWORD,
             },
+            // Add connection timeout and debugging
+            connectionTimeout: 10000,
+            greetingTimeout: 5000,
+            socketTimeout: 10000,
+            debug: true,
+            logger: true,
           })
+
+          console.log('📧 Verifying SMTP connection...')
+          try {
+            await transport.verify()
+            console.log('✅ SMTP connection verified successfully')
+          } catch (verifyError) {
+            console.error('❌ SMTP verification failed:', verifyError)
+            throw new Error(`SMTP server connection failed: ${verifyError instanceof Error ? verifyError.message : 'Unknown error'}`)
+          }
 
           const info = await transport.sendMail({
             to: email,
