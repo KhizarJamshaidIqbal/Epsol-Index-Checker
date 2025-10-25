@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
@@ -23,7 +23,7 @@ export default function SignInPage() {
         callbackUrl: '/campaigns',
       })
     } catch (error) {
-      console.error('Sign in error:', error)
+      console.error('Sign up error:', error)
       setIsLoading(false)
     }
   }
@@ -32,15 +32,15 @@ export default function SignInPage() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-8 rounded-lg border bg-card p-8 shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Epsol Index Checker</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Create an Account</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to check your URLs indexing status
+            Start checking your URLs indexing status
           </p>
         </div>
 
         {error && (
           <div className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
-            {error === 'OAuthSignin' && 'Error signing in. Please try again.'}
+            {error === 'OAuthSignin' && 'Error signing up. Please try again.'}
             {error === 'OAuthCallback' && 'Error during callback. Please try again.'}
             {error === 'OAuthCreateAccount' && 'Could not create account. Please try again.'}
             {error === 'EmailCreateAccount' && 'Could not create account. Please try again.'}
@@ -67,9 +67,12 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-2 block w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder-muted-foreground shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="admin@epsol.local"
+              placeholder="you@example.com"
               disabled={isLoading}
             />
+            <p className="mt-2 text-xs text-muted-foreground">
+              We'll send you a verification link to create your account
+            </p>
           </div>
 
           <button
@@ -77,18 +80,14 @@ export default function SignInPage() {
             disabled={isLoading}
             className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Sending magic link...' : 'Sign in with Email'}
+            {isLoading ? 'Sending verification email...' : 'Create Account'}
           </button>
-
-          <p className="text-center text-xs text-muted-foreground">
-            We'll send you a magic link to sign in without a password.
-          </p>
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/auth/signup" className="font-medium text-primary hover:underline">
-                Sign up
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="font-medium text-primary hover:underline">
+                Sign in
               </Link>
             </p>
           </div>
@@ -97,8 +96,7 @@ export default function SignInPage() {
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-4 rounded-md bg-muted p-4 text-xs text-muted-foreground">
             <p className="font-medium">Development Mode:</p>
-            <p className="mt-1">Use email: <code className="rounded bg-background px-1 py-0.5">admin@epsol.local</code></p>
-            <p className="mt-1">Check your terminal/console for the magic link (no email server configured)</p>
+            <p className="mt-1">Check your email or terminal/console for the verification link</p>
           </div>
         )}
       </div>

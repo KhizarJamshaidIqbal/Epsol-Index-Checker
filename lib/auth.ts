@@ -7,18 +7,20 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     EmailProvider({
-      server: process.env.EMAIL_SERVER || {
-        host: 'localhost',
-        port: 1025,
+      server: {
+        host: process.env.EMAIL_SERVER_HOST || 'localhost',
+        port: Number(process.env.EMAIL_SERVER_PORT) || 465,
+        secure: true, // Use SSL/TLS
         auth: {
-          user: '',
-          pass: '',
+          user: process.env.EMAIL_SERVER_USER || '',
+          pass: process.env.EMAIL_SERVER_PASSWORD || '',
         },
       },
       from: process.env.EMAIL_FROM || 'noreply@epsol.local',
-      // Custom send function for development - logs magic link to console
+      // Custom send function
       async sendVerificationRequest({ identifier: email, url }) {
-        if (process.env.NODE_ENV === 'development' || !process.env.EMAIL_SERVER) {
+        // Development mode fallback
+        if (!process.env.EMAIL_SERVER_HOST) {
           console.log('\n' + '='.repeat(80))
           console.log('🔐 MAGIC LINK AUTHENTICATION')
           console.log('='.repeat(80))
@@ -30,18 +32,27 @@ export const authOptions: NextAuthOptions = {
           return
         }
 
-        // Production: use nodemailer to send actual email
+        // Production: use nodemailer with SSL/TLS
         const nodemailer = await import('nodemailer')
-        const transport = nodemailer.createTransport(process.env.EMAIL_SERVER)
+        const transport = nodemailer.createTransport({
+          host: process.env.EMAIL_SERVER_HOST,
+          port: Number(process.env.EMAIL_SERVER_PORT),
+          secure: true, // Use SSL/TLS
+          auth: {
+            user: process.env.EMAIL_SERVER_USER,
+            pass: process.env.EMAIL_SERVER_PASSWORD,
+          },
+        })
+
         await transport.sendMail({
           to: email,
-          from: process.env.EMAIL_FROM || 'noreply@epsol.local',
+          from: process.env.EMAIL_FROM,
           subject: 'Sign in to Epsol Index Checker',
           text: `Sign in to Epsol Index Checker\n\nClick here to sign in: ${url}\n\n`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2>Sign in to Epsol Index Checker</h2>
-              <p>Click the button below to sign in:</p>
+              <h2 style="color: #0070f3;">Welcome to Epsol Index Checker</h2>
+              <p>Click the button below to sign in to your account:</p>
               <a href="${url}" style="display: inline-block; background: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0;">Sign In</a>
               <p>Or copy and paste this URL into your browser:</p>
               <p style="color: #666; word-break: break-all;">${url}</p>
