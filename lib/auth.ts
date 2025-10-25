@@ -2,26 +2,18 @@ import { NextAuthOptions } from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from './prisma'
+import { Resend } from 'resend'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST || 'localhost',
-        port: Number(process.env.EMAIL_SERVER_PORT) || 465,
-        secure: true, // Use SSL/TLS
-        auth: {
-          user: process.env.EMAIL_SERVER_USER || '',
-          pass: process.env.EMAIL_SERVER_PASSWORD || '',
-        },
-      },
       from: process.env.EMAIL_FROM || 'noreply@epsol.local',
-      // Custom send function
+      // Custom send function using Resend
       async sendVerificationRequest({ identifier: email, url }) {
         try {
           // Development mode fallback
-          if (!process.env.EMAIL_SERVER_HOST) {
+          if (!process.env.RESEND_API_KEY) {
             console.log('\n' + '='.repeat(80))
             console.log('🔐 MAGIC LINK AUTHENTICATION')
             console.log('='.repeat(80))
@@ -29,54 +21,19 @@ export const authOptions: NextAuthOptions = {
             console.log(`🔗 Magic Link: ${url}`)
             console.log('='.repeat(80))
             console.log('👆 Copy the link above and paste it in your browser to sign in')
+            console.log('⚠️  RESEND_API_KEY not set - showing link in console')
             console.log('='.repeat(80) + '\n')
             return
           }
 
-          // Validate required environment variables
-          if (!process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD) {
-            console.error('❌ Email configuration missing: EMAIL_SERVER_USER or EMAIL_SERVER_PASSWORD not set')
-            throw new Error('Email configuration is incomplete. Please contact administrator.')
-          }
+          console.log(`📧 Sending magic link via Resend to ${email}...`)
 
-          console.log(`📧 Attempting to send magic link to ${email}...`)
-          console.log(`📧 SMTP Config: ${process.env.EMAIL_SERVER_HOST}:${process.env.EMAIL_SERVER_PORT}`)
-          console.log(`📧 SMTP User: ${process.env.EMAIL_SERVER_USER}`)
+          const resend = new Resend(process.env.RESEND_API_KEY)
 
-          // Production: use nodemailer with SSL/TLS
-          const nodemailer = await import('nodemailer')
-          
-          console.log('📧 Creating SMTP transport...')
-          const transport = nodemailer.createTransport({
-            host: process.env.EMAIL_SERVER_HOST,
-            port: Number(process.env.EMAIL_SERVER_PORT),
-            secure: true, // Use SSL/TLS
-            auth: {
-              user: process.env.EMAIL_SERVER_USER,
-              pass: process.env.EMAIL_SERVER_PASSWORD,
-            },
-            // Add connection timeout and debugging
-            connectionTimeout: 10000,
-            greetingTimeout: 5000,
-            socketTimeout: 10000,
-            debug: true,
-            logger: true,
-          })
-
-          console.log('📧 Verifying SMTP connection...')
-          try {
-            await transport.verify()
-            console.log('✅ SMTP connection verified successfully')
-          } catch (verifyError) {
-            console.error('❌ SMTP verification failed:', verifyError)
-            throw new Error(`SMTP server connection failed: ${verifyError instanceof Error ? verifyError.message : 'Unknown error'}`)
-          }
-
-          const info = await transport.sendMail({
+          const { data, error } = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
             to: email,
-            from: process.env.EMAIL_FROM,
             subject: 'Sign in to Epsol Index Checker',
-            text: `Sign in to Epsol Index Checker\n\nClick here to sign in: ${url}\n\n`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #0070f3;">Welcome to Epsol Index Checker</h2>
@@ -89,15 +46,14 @@ export const authOptions: NextAuthOptions = {
             `,
           })
 
-          console.log(`✅ Email sent successfully! Message ID: ${info.messageId}`)
+          if (error) {
+            console.error('❌ Resend error:', error)
+            throw new Error(`Failed to send email via Resend: ${error.message}`)
+          }
+
+          console.log(`✅ Email sent successfully via Resend! ID: ${data?.id}`)
         } catch (error) {
           console.error('❌ Failed to send email:', error)
-          console.error('Email server config:', {
-            host: process.env.EMAIL_SERVER_HOST,
-            port: process.env.EMAIL_SERVER_PORT,
-            user: process.env.EMAIL_SERVER_USER,
-            from: process.env.EMAIL_FROM,
-          })
           throw new Error(`Failed to send verification email: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
       },
