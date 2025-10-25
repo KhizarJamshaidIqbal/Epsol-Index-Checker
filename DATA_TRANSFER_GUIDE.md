@@ -20,7 +20,7 @@ Create a temporary `.env.transfer` file:
 
 ```env
 # Your LOCAL PostgreSQL database
-LOCAL_DATABASE_URL=postgresql://postgres:password@localhost:5432/epsol_indexing
+LOCAL_DATABASE_URL=postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing
 
 # Your NEON database (from Neon console)
 DATABASE_URL=postgresql://neondb_owner:npg_BVOXGNTh5u2y@ep-autumn-cloud-adiizixl-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
@@ -40,7 +40,7 @@ This creates all tables in Neon.
 
 ```bash
 # Using the transfer env file
-set LOCAL_DATABASE_URL=postgresql://postgres:password@localhost:5432/epsol_indexing
+set LOCAL_DATABASE_URL=postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing
 set DATABASE_URL=postgresql://neondb_owner:npg_BVOXGNTh5u2y@ep-autumn-cloud-adiizixl-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
 
 node scripts/transfer-to-neon.js
@@ -86,7 +86,7 @@ If you have a small dataset:
 
 ```bash
 # Set to local database
-$env:DATABASE_URL="postgresql://postgres:password@localhost:5432/epsol_indexing"
+$env:DATABASE_URL="postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing"
 npx prisma studio
 ```
 
@@ -130,7 +130,7 @@ npx prisma migrate deploy
 
 ```bash
 # Set both database URLs
-$env:LOCAL_DATABASE_URL="postgresql://postgres:password@localhost:5432/epsol_indexing"
+$env:LOCAL_DATABASE_URL="postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing"
 $env:DATABASE_URL="postgresql://neondb_owner:npg_BVOXGNTh5u2y@ep-autumn-cloud-adiizixl-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Run transfer
@@ -178,7 +178,7 @@ After transfer, check counts match:
 
 ```bash
 # Check local
-$env:DATABASE_URL="postgresql://postgres:password@localhost:5432/epsol_indexing"
+$env:DATABASE_URL="postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing"
 npx prisma studio
 
 # Check Neon

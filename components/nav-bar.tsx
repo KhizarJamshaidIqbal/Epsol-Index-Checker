@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { ThemeToggle } from './theme-toggle'
+import { DatabaseViewer } from './database-viewer'
 
 export function NavBar() {
   const { data: session } = useSession()
@@ -53,6 +54,7 @@ export function NavBar() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{session.user?.email}</span>
+            <DatabaseViewer />
             <ThemeToggle />
             <Link
               href="/api/auth/signout"

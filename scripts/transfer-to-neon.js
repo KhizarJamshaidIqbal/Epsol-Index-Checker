@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client')
 const localPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.LOCAL_DATABASE_URL || 'postgresql://postgres:password@localhost:5432/epsol_indexing'
+      url: process.env.LOCAL_DATABASE_URL || 'postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing'
     }
   }
 })
