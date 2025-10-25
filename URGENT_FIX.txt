@@ -1,0 +1,32 @@
+========================================
+🚨 URGENT: Fix Database Connection Error
+========================================
+
+STEP 1: Open your .env file
+----------------------------
+Location: C:\Users\KhizarJamshaidIqbal\Documents\F Drive\khizarjamshaidiqbal\Epsol-Index-Checker\.env
+
+STEP 2: Find this line:
+----------------------
+DATABASE_URL=postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing
+
+STEP 3: Replace it with:
+------------------------
+DATABASE_URL=file:./dev.db
+
+STEP 4: Save the file
+---------------------
+
+STEP 5: Run these commands in your terminal:
+--------------------------------------------
+npx prisma db push
+npm run dev
+
+========================================
+✅ Your app should now work!
+========================================
+
+The database will be stored locally in a file called "dev.db" 
+instead of trying to connect to the remote server.
+
+This is recommended for local development.

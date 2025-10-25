@@ -71,13 +71,14 @@ model Setting {
 }
 
 model Campaign {
-  id        String         @id @default(cuid())
-  userId    String
-  name      String
-  createdAt DateTime       @default(now())
-  status    CampaignStatus @default(READY)
-  items     UrlItem[]
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String         @id @default(cuid())
+  userId     String
+  name       String
+  createdAt  DateTime       @default(now())
+  status     CampaignStatus @default(READY)
+  items      UrlItem[]
+  customJobs CustomJob[]
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -109,4 +110,30 @@ enum UrlStatus {
   INDEXED
   NOT_INDEXED
   ERROR
+}
+
+model CustomJob {
+  id              String       @id @default(cuid())
+  campaignId      String
+  userId          String
+  name            String
+  frequency       JobFrequency
+  isActive        Boolean      @default(true)
+  emailOnComplete Boolean      @default(true)
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  campaign        Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([nextRunAt, isActive])
+}
+
+enum JobFrequency {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
 }

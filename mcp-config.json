@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "postgresql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://epsol_user:epsol_password%40786@69.57.161.70:5432/epsol_indexing"
+      ]
+    }
+  }
+}
