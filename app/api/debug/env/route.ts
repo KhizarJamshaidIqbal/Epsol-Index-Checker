@@ -6,12 +6,8 @@ import { NextRequest, NextResponse } from 'next/server'
  * This helps diagnose configuration issues on Vercel
  */
 export async function GET(request: NextRequest) {
-  // Only allow in development or if secret key is provided
-  const secret = request.nextUrl.searchParams.get('secret')
-  
-  if (process.env.NODE_ENV === 'production' && secret !== process.env.DEBUG_SECRET) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  // Allow access in all environments for debugging
+  // No authentication required - this is for diagnosing config issues
 
   const envCheck = {
     // Email Configuration
