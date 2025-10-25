@@ -4,6 +4,10 @@ import { requireAuth, apiSuccess, apiError } from '@/lib/api-helpers'
 import { checkRateLimit, getClientIdentifier, rateLimitExceededResponse } from '@/lib/ratelimit'
 import { parseUrlList, deduplicateUrls } from '@/lib/normalizeUrl'
 
+// Force dynamic rendering - this route uses authentication
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 /**
  * POST /api/campaigns/:id/add-urls
  * Add new URLs to an existing campaign

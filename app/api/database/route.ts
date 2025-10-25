@@ -2,6 +2,10 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth, apiSuccess, apiError } from '@/lib/api-helpers'
 
+// Force dynamic rendering - this route uses authentication
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 /**
  * GET /api/database
  * Get database information including tables and row counts

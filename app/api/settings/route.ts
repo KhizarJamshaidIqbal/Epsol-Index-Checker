@@ -4,6 +4,10 @@ import { requireAuth, apiSuccess, apiError } from '@/lib/api-helpers'
 import { checkRateLimit, getClientIdentifier, rateLimitExceededResponse } from '@/lib/ratelimit'
 import { encrypt, decrypt } from '@/lib/crypto'
 
+// Force dynamic rendering - this route uses authentication
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 /**
  * GET /api/settings
  * Get user settings (without exposing encrypted values)

@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { requireAuth, apiSuccess, apiError } from '@/lib/api-helpers'
 import { checkRateLimit, getClientIdentifier, rateLimitExceededResponse } from '@/lib/ratelimit'
 
+// Force dynamic rendering - this route uses authentication
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 /**
  * GET /api/campaigns/:id
  * Get campaign details with stats
